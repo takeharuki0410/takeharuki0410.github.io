@@ -158,6 +158,7 @@ const DATA = [{"day": 13, "en": "commission", "jp": "委員会", "phrase": "an e
 let mode='exam', questions=[], index=0, correct=0, wrong=[], answered=false, currentDay=null;
 const $=id=>document.getElementById(id);
 const STORE_LAST='kikutan_last_wrong_v1';
+const STORE_WRONG='kikutan_wrong_bank_v1';
 const STORE_STATS='kikutan_stats_v1';
 const STORE_BEST='kikutan_best_v1';
 
@@ -167,6 +168,26 @@ function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
 function normalize(s){return s.trim().toLowerCase().replace(/\s+/g,' ')}
 function qid(q){return q.day+':'+q.en.toLowerCase()}
 function uniqueWords(list){const seen=new Set();return list.filter(q=>{const k=q.en.toLowerCase();if(seen.has(k))return false;seen.add(k);return true;})}
+
+function getSavedWrongIds(){
+  const bank = load(STORE_WRONG, null);
+  if(Array.isArray(bank)) return bank;
+
+  // 初回だけ、古い「前回間違えた問題」の記録を引き継ぐ
+  const oldLast = load(STORE_LAST, []);
+  if(Array.isArray(oldLast) && oldLast.length){
+    save(STORE_WRONG, oldLast);
+    return oldLast;
+  }
+  return [];
+}
+
+function saveWrongBank(list){
+  const ids = new Set(getSavedWrongIds());
+  uniqueWords(list).forEach(q => ids.add(qid(q)));
+  save(STORE_WRONG, [...ids]);
+}
+
 function show(id){['home','dayMenu','wrongMenu','historyMenu','quiz','result'].forEach(x=>$(x).classList.add('hidden'));$(id).classList.remove('hidden')}
 
 function init(){
@@ -175,10 +196,11 @@ function init(){
   updateStats();
 }
 function updateStats(){
-  const s=load(STORE_STATS,null), best=load(STORE_BEST,null), last=load(STORE_LAST,[]);
+  const s=load(STORE_STATS,null), best=load(STORE_BEST,null), last=load(STORE_LAST,[]), saved=getSavedWrongIds();
   let html='';
   if(best) html += `最高記録：${best.correct} / ${best.total}（${Math.round(best.correct/best.total*100)}%）<br>`;
   if(s) html += `前回：${s.correct} / ${s.total}（${Math.round(s.correct/s.total*100)}%）<br>`;
+  html += `保存済みミス：${saved.length}問<br>`;
   html += `前回間違えた問題：${last.length}問`;
   $('stats').innerHTML=html;
 }
@@ -236,6 +258,7 @@ function nextQuestion(){
 function finish(){
   const wrongUnique=uniqueWords(wrong);
   save(STORE_LAST, wrongUnique.map(qid));
+  saveWrongBank(wrongUnique);
   save(STORE_STATS,{total:questions.length,correct});
   let best=load(STORE_BEST,null), newBest=false;
   if(mode==='exam' && (!best || correct>best.correct || (correct===best.correct && questions.length>=best.total))){best={total:questions.length,correct};save(STORE_BEST,best);newBest=true;}
@@ -256,7 +279,7 @@ function retryWrong(){
 }
 
 function getLastWrongQuestions(){
-  const ids = new Set(load(STORE_LAST, []));
+  const ids = new Set(getSavedWrongIds());
   return uniqueWords(DATA).filter(q => ids.has(qid(q)));
 }
 
@@ -322,7 +345,7 @@ function showHistoryMenu(){
 }
 
 function goHome(){show('home');updateStats()}
-function resetData(){if(confirm('記録を消す？')){localStorage.removeItem(STORE_LAST);localStorage.removeItem(STORE_STATS);localStorage.removeItem(STORE_BEST);updateStats();}}
+function resetData(){if(confirm('記録を消す？')){localStorage.removeItem(STORE_LAST);localStorage.removeItem(STORE_WRONG);localStorage.removeItem(STORE_STATS);localStorage.removeItem(STORE_BEST);updateStats();}}
 $('answer').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault(); answered?nextQuestion():checkAnswer();}});
 init();
 
