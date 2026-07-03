@@ -4,15 +4,7 @@
 
 window.CHANGELOG = [
   {
-    version: 'v2.4',
-    date: '2026/07/03',
-    items: [
-      '更新履歴をupdates.jsだけで編集できる方式に変更',
-      'index.htmlを触らずに更新履歴を増やせるように変更'
-    ]
-  },
-  {
-    version: 'v2.3',
+    version: 'v1.2',
     date: '2026/07/03',
     items: [
       '更新履歴ページを追加',
@@ -20,7 +12,7 @@ window.CHANGELOG = [
     ]
   },
   {
-    version: 'v2.2',
+    version: 'v1.1',
     date: '2026/07/03',
     items: [
       '前回間違えた問題にDayごとの復習メニューを追加',
@@ -28,12 +20,11 @@ window.CHANGELOG = [
     ]
   },
   {
-    version: 'v2.1',
+    version: 'v1.0',
     date: '2026/07/03',
     items: [
       'Day13〜30を収録',
       'iPhoneのホーム画面追加に対応',
-      'Day13のviceの意味を「悪徳」に修正'
     ]
   }
 ];
