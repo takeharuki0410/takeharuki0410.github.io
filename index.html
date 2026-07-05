@@ -34,123 +34,45 @@ input{width:100%;padding:16px;border:2px solid var(--line);border-radius:14px;fo
 .historyItem .date{font-size:13px;color:var(--muted);font-weight:700}
 .historyItem ul{margin:8px 0 0 18px;padding:0}
 
+select,textarea{width:100%;padding:14px;border:2px solid var(--line);border-radius:14px;font:inherit;background:#fff;color:var(--ink);outline:none}
+select:focus,textarea:focus{border-color:var(--accent)} textarea{min-height:150px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px}
+.setting{margin-top:14px}.setting label{display:block;font-weight:900;margin-bottom:7px}.checkrow{display:flex;align-items:center;gap:10px;font-weight:800}.checkrow input{width:22px;height:22px}
+.wordItem{background:#f8f4f0;border-radius:14px;padding:13px;margin-top:10px}.wordItem b{font-size:19px}.wordItem button{margin-top:9px;width:100%;padding:11px}
+.notice{background:#fff6d9;border-radius:12px;padding:10px;margin-top:10px;color:#765b00}.stack>*+*{margin-top:10px}
 </style>
 </head>
 <body>
 <div class="wrap">
 <section id="home">
-  <div class="title">キクタン対策</div>
-  <p class="sub">Day13〜30 / Check2</p>
-  <div class="card">
-    <h2>メニュー</h2>
-    <div class="grid">
-      <button class="primary" onclick="startQuiz('exam')">本番ランダム20問</button>
-      <button onclick="showWrongMenu()">前回間違えた問題</button>
-      <button onclick="showDayMenu()">Dayごとに練習</button>
-      <button onclick="startQuiz('all')">全部練習</button>
-      <button class="ghost danger" onclick="resetData()">記録リセット</button>
-    </div>
-  </div>
-  <div class="card">
-    <h2>記録</h2>
-    <div id="stats" class="small"></div>
-  </div>
-  <div class="card installHint">
-    <h2>iPhoneで擬似アプリ化</h2>
-    <p class="small">iPhoneならSafariで開いて「共有」→「ホーム画面に追加」からアプリにできます。</p>
-  </div>
-
-
-  <div class="card">
-    <h2>更新履歴</h2>
-    <p class="small">サイトの変更内容を確認できます。</p>
-    <button onclick="showHistoryMenu()">更新履歴を見る</button>
-  </div>
-
+  <div class="title">キクタン対策</div><p class="sub">Day13〜30 / Check2</p>
+  <div class="card"><h2>単語一覧・検索</h2><p class="small">Day別表示や英語・日本語検索ができます。</p><button class="primary" onclick="showWordListMenu()">単語一覧を開く</button></div>
+  <div class="card"><h2>メニュー</h2><div class="grid">
+    <button class="primary" id="examStartBtn" onclick="showRandomSettingsMenu()">ランダム問題</button>
+    <button onclick="showWrongMenu()">前回間違えた問題</button><button onclick="showDayMenu()">Dayごとに練習</button>
+    <button onclick="startQuiz('all')">全部練習</button>
+  </div></div>
+  <div class="card"><h2>記録</h2><div id="stats" class="small"></div></div>
+  <div class="card installHint"><h2>iPhoneで擬似アプリ化</h2><p class="small">iPhoneならSafariで開いて「共有」→「ホーム画面に追加」からアプリにできます。</p></div>
+  <div class="card"><h2>更新履歴</h2><p class="small">サイトの変更内容を確認できます。</p><button onclick="showHistoryMenu()">更新履歴を見る</button></div>
 </section>
-
-<section id="dayMenu" class="hidden">
-  <div class="row">
-    <div class="title">Dayごとに練習</div>
-    <button class="ghost" onclick="goHome()">戻る</button>
-  </div>
-  <p class="sub">選んだDayの中からランダム順で出題。</p>
+<section id="randomSettingsMenu" class="hidden">
+  <div class="row"><div class="title">ランダム問題</div><button class="ghost" onclick="goHome()">戻る</button></div>
+  <p class="sub">問題数と出題順を選んでから開始します。</p>
   <div class="card">
-    <div class="daygrid" id="dayButtons"></div>
+    <div class="setting"><label for="examCount">問題数</label><select id="examCount"><option value="10">10問</option><option value="20">20問</option><option value="30">30問</option><option value="all">全部</option></select></div>
+    <div class="setting"><label for="questionOrder">出題順</label><select id="questionOrder"><option value="random">ランダム</option><option value="registered">単語帳の順番</option></select></div>
+    <button class="primary" style="width:100%;margin-top:18px" onclick="startRandomWithSettings()">この設定で開始</button>
   </div>
 </section>
-
-
-<section id="wrongMenu" class="hidden">
-  <div class="row">
-    <div class="title">前回間違えた問題</div>
-    <button class="ghost" onclick="goHome()">戻る</button>
-  </div>
-  <p class="sub">全体の間違い、またはDayごとの間違いだけを復習できます。</p>
-
-  <div class="card">
-    <h2>全体</h2>
-    <div class="grid">
-      <button class="primary" onclick="startWrongAll()">全体の間違いを復習</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>Dayごとの間違い</h2>
-    <div class="daygrid" id="wrongDayButtons"></div>
-    <p class="small" id="wrongEmptyMsg"></p>
-  </div>
-</section>
-
-
-<section id="historyMenu" class="hidden">
-  <div class="row">
-    <div class="title">更新履歴</div>
-    <button class="ghost" onclick="goHome()">戻る</button>
-  </div>
-  <p class="sub">このページを更新したら履歴を掲載します</p>
-
-  <div class="card">
-    <div id="historyList"></div>
-  </div>
-</section>
-
-<section id="quiz" class="hidden">
-  <div class="row">
-    <div><span class="pill" id="rangeLabel"></span><span class="pill" id="modeLabel"></span></div>
-    <button class="ghost" onclick="goHome()">戻る</button>
-  </div>
-  <div class="card">
-    <div class="row"><div id="count"></div><div id="score"></div></div>
-    <div class="progress"><div class="bar" id="bar"></div></div>
-    <div class="jp" id="jp"></div>
-    <div class="phrase" id="phrase"></div>
-    <input id="answer" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="赤文字の英語を入力">
-    <button class="primary" style="width:100%;margin-top:12px" onclick="checkAnswer()" id="checkBtn">答える</button>
-    <button class="primary hidden" style="width:100%;margin-top:12px" onclick="nextQuestion()" id="nextBtn">次へ</button>
-    <div id="feedback" class="feedback"></div>
-    <div id="correctBox" class="answer hidden"></div>
-  </div>
-</section>
-
-<section id="result" class="hidden">
-  <div class="title">結果</div>
-  <div class="card">
-    <h2 id="resultScore"></h2>
-    <div id="recordMsg" class="feedback ok"></div>
-    <div id="wrongList"></div>
-  </div>
-  <div class="grid">
-    <button class="primary" onclick="goHome()">ホームへ</button>
-    <button onclick="retryWrong()" id="retryWrongBtn">今回間違えた問題だけもう一回</button>
-  </div>
-</section>
+<section id="dayMenu" class="hidden"><div class="row"><div class="title">Dayごとに練習</div><button class="ghost" onclick="goHome()">戻る</button></div><p class="sub">各Dayの保存済みミス数も確認できます。</p><div class="card"><div class="daygrid" id="dayButtons"></div></div></section>
+<section id="wrongMenu" class="hidden"><div class="row"><div class="title">前回間違えた問題</div><button class="ghost" onclick="goHome()">戻る</button></div><p class="sub">保存済みミスと、直近のテストのミスを分けて復習できます。</p><div class="card"><h2>全体の保存済みミス</h2><button class="primary" style="width:100%" id="wrongAllBtn" onclick="startWrongAll()"></button></div><div class="card"><h2>Day別の保存済みミス</h2><div class="daygrid" id="wrongDayButtons"></div><p class="small" id="wrongEmptyMsg"></p></div><div class="card"><h2>直近のテストで間違えた問題</h2><button style="width:100%" id="recentWrongBtn" onclick="startRecentWrong()"></button></div></section>
+<section id="historyMenu" class="hidden"><div class="row"><div class="title">更新履歴</div><button class="ghost" onclick="goHome()">戻る</button></div><p class="sub">このページを更新したら履歴を掲載します</p><div class="card"><div id="historyList"></div></div></section>
+<section id="wordListMenu" class="hidden"><div class="row"><div class="title">単語一覧・検索</div><button class="ghost" onclick="goHome()">戻る</button></div><div class="card"><div class="setting"><label for="wordDayFilter">Day</label><select id="wordDayFilter" oninput="renderWordList()" onchange="renderWordList()"></select></div><div class="setting"><label for="wordSearch">英語・日本語で検索</label><input id="wordSearch" type="search" placeholder="例：commission / 委員会" oninput="renderWordList()"></div></div><div id="wordListCount" class="small"></div><div id="wordList"></div></section>
+<section id="settingsMenu" class="hidden"></section>
+<section id="dataMenu" class="hidden"><div class="row"><div class="title">データ管理</div><button class="ghost" onclick="goHome()">戻る</button></div><div class="card"><h2>バックアップ</h2><p class="small">現在の記録と設定をJSONで保存します。</p><div class="grid"><button onclick="copyBackup()">JSONをコピー</button><button onclick="downloadBackup()">JSONをダウンロード</button></div></div><div class="card"><h2>復元</h2><textarea id="importJson" placeholder="バックアップJSONをここに貼り付け"></textarea><button class="primary" style="width:100%;margin-top:10px" onclick="importBackup()">インポートして復元</button></div><div class="card"><h2>記録リセット</h2><p class="small">前回ミス、保存済みミス、成績、最高記録、設定を削除します。</p><button class="danger" style="width:100%" onclick="resetData()">すべての記録をリセット</button></div></section>
+<section id="quiz" class="hidden"><div class="row"><div><span class="pill" id="rangeLabel"></span><span class="pill" id="modeLabel"></span></div><button class="ghost" onclick="goHome()">戻る</button></div><div class="card"><div class="row"><div id="count"></div><div id="score"></div></div><div class="progress"><div class="bar" id="bar"></div></div><div class="jp" id="jp"></div><div class="phrase" id="phrase"></div><input id="answer" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="赤文字の英語を入力"><button class="primary" style="width:100%;margin-top:12px" onclick="checkAnswer()" id="checkBtn">答える</button><button class="primary hidden" style="width:100%;margin-top:12px" onclick="nextQuestion()" id="nextBtn">次へ</button><div id="feedback" class="feedback"></div><div id="correctBox" class="answer hidden"></div><button id="removeWrongBtn" class="ghost hidden" style="width:100%;margin-top:10px" onclick="removeCurrentWrong()">覚えたのでミスから削除</button></div></section>
+<section id="result" class="hidden"><div class="title">結果</div><div class="card"><h2 id="resultScore"></h2><div id="recordMsg" class="feedback ok"></div><div id="wrongList"></div></div><div class="grid"><button class="primary" onclick="goHome()">ホームへ</button><button onclick="retryWrong()" id="retryWrongBtn">今回間違えた問題だけもう一回</button></div></section>
 </div>
-
-
-
-
-
 <script src="updates.js"></script>
 
 <script>
@@ -161,200 +83,171 @@ const STORE_LAST='kikutan_last_wrong_v1';
 const STORE_WRONG='kikutan_wrong_bank_v1';
 const STORE_STATS='kikutan_stats_v1';
 const STORE_BEST='kikutan_best_v1';
+const STORE_SETTINGS='kikutan_settings_v1';
+const SCREENS=['home','randomSettingsMenu','dayMenu','wrongMenu','historyMenu','quiz','result','wordListMenu','settingsMenu','dataMenu'];
+const DEFAULT_SETTINGS={examCount:'20',order:'random',autoRemoveWrong:false};
 
-function load(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}}
+function load(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v===null?d:v}catch(e){return d}}
 function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
-function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
-function normalize(s){return s.trim().toLowerCase().replace(/\s+/g,' ')}
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+function normalize(s){return String(s||'').trim().toLowerCase().replace(/\s+/g,' ')}
 function qid(q){return q.day+':'+q.en.toLowerCase()}
-function uniqueWords(list){const seen=new Set();return list.filter(q=>{const k=q.en.toLowerCase();if(seen.has(k))return false;seen.add(k);return true;})}
+function uniqueWords(list){const seen=new Set();return list.filter(q=>{const k=qid(q);if(seen.has(k))return false;seen.add(k);return true})}
+function allDays(){return [...new Set(DATA.map(q=>q.day))].sort((a,b)=>a-b)}
+function normalizeIds(value){if(!Array.isArray(value))return [];return [...new Set(value.map(v=>typeof v==='string'?v:(v&&v.day&&v.en?qid(v):'')).filter(Boolean))]}
+function getSettings(){const s=load(STORE_SETTINGS,{});return{examCount:['10','20','30','all'].includes(String(s.examCount))?String(s.examCount):DEFAULT_SETTINGS.examCount,order:['random','registered'].includes(s.order)?s.order:DEFAULT_SETTINGS.order,autoRemoveWrong:s.autoRemoveWrong===true}}
+function orderQuestions(list){return getSettings().order==='random'?shuffle(list):[...list]}
 
 function getSavedWrongIds(){
-  const bank = load(STORE_WRONG, null);
-  if(Array.isArray(bank)) return bank;
-
-  // 初回だけ、古い「前回間違えた問題」の記録を引き継ぐ
-  const oldLast = load(STORE_LAST, []);
-  if(Array.isArray(oldLast) && oldLast.length){
-    save(STORE_WRONG, oldLast);
-    return oldLast;
-  }
-  return [];
+  const raw=load(STORE_WRONG,null);
+  if(Array.isArray(raw)){const ids=normalizeIds(raw);if(JSON.stringify(ids)!==JSON.stringify(raw))save(STORE_WRONG,ids);return ids}
+  const oldLast=normalizeIds(load(STORE_LAST,[]));
+  if(oldLast.length)save(STORE_WRONG,oldLast);
+  return oldLast;
 }
+function saveWrongBank(list){const ids=new Set(getSavedWrongIds());uniqueWords(list).forEach(q=>ids.add(qid(q)));save(STORE_WRONG,[...ids])}
+function removeWrongId(id){save(STORE_WRONG,getSavedWrongIds().filter(x=>x!==id));updateHome()}
+function getSavedWrongQuestions(){const ids=new Set(getSavedWrongIds());return uniqueWords(DATA).filter(q=>ids.has(qid(q)))}
+function getRecentWrongQuestions(){const ids=new Set(normalizeIds(load(STORE_LAST,[])));return uniqueWords(DATA).filter(q=>ids.has(qid(q)))}
 
-function saveWrongBank(list){
-  const ids = new Set(getSavedWrongIds());
-  uniqueWords(list).forEach(q => ids.add(qid(q)));
-  save(STORE_WRONG, [...ids]);
-}
-
-function show(id){['home','dayMenu','wrongMenu','historyMenu','quiz','result'].forEach(x=>$(x).classList.add('hidden'));$(id).classList.remove('hidden')}
-
+function show(id){SCREENS.forEach(x=>{const el=$(x);if(el)el.classList.add('hidden')});const target=$(id);if(target)target.classList.remove('hidden');window.scrollTo(0,0)}
 function init(){
-  const days=[...new Set(DATA.map(q=>q.day))].sort((a,b)=>a-b);
-  $('dayButtons').innerHTML=days.map(d=>`<button onclick="startDay(${d})">Day${d}</button>`).join('');
+  const daySelect=$('wordDayFilter');
+  daySelect.innerHTML='<option value="all">すべてのDay</option>'+allDays().map(d=>'<option value="'+d+'">Day'+d+'</option>').join('');
+  updateHome();
+}
+function updateHome(){
   updateStats();
+  $('examStartBtn').textContent='ランダム問題';
 }
 function updateStats(){
-  const s=load(STORE_STATS,null), best=load(STORE_BEST,null), last=load(STORE_LAST,[]), saved=getSavedWrongIds();
-  let html='';
-  if(best) html += `最高記録：${best.correct} / ${best.total}（${Math.round(best.correct/best.total*100)}%）<br>`;
-  if(s) html += `前回：${s.correct} / ${s.total}（${Math.round(s.correct/s.total*100)}%）<br>`;
-  html += `保存済みミス：${saved.length}問<br>`;
-  html += `前回間違えた問題：${last.length}問`;
+  const s=load(STORE_STATS,null),best=load(STORE_BEST,null),saved=getSavedWrongQuestions(),recent=getRecentWrongQuestions();
+  let html=best?'最高記録：'+best.correct+' / '+best.total+'（'+Math.round(best.correct/best.total*100)+'%）<br>':'最高記録：まだありません<br>';
+  html+=s?'前回の結果：'+s.correct+' / '+s.total+'（'+Math.round(s.correct/s.total*100)+'%）<br>':'前回の結果：まだありません<br>';
+  html+='保存済みミス数：'+saved.length+'問<br>';
+  html+='直近のミス数：'+recent.length+'問';
   $('stats').innerHTML=html;
 }
-function showDayMenu(){
-  show('dayMenu');
+function renderDayButtons(){
+  const saved=getSavedWrongQuestions();
+  $('dayButtons').innerHTML=allDays().map(d=>'<button onclick="startDay('+d+')">Day'+d+'（ミス'+saved.filter(q=>q.day===d).length+'）</button>').join('');
 }
-function startDay(day){
-  currentDay=day; mode='day';
-  questions=shuffle(uniqueWords(DATA.filter(q=>q.day===day)));
-  startCommon();
-}
+function showDayMenu(){renderDayButtons();show('dayMenu')}
+function startDay(day){currentDay=day;mode='day';questions=orderQuestions(uniqueWords(DATA.filter(q=>q.day===day)));startCommon()}
 function startQuiz(m){
-  mode=m; currentDay=null;
-  let base=uniqueWords(DATA);
-  if(m==='exam') questions=shuffle(base).slice(0,20);
-  if(m==='all') questions=shuffle(base);
-  if(m==='lastWrong'){
-    const ids=new Set(load(STORE_LAST,[]));
-    questions=shuffle(base.filter(q=>ids.has(qid(q))));
-  }
-  if(!questions.length){alert('出す問題がない！まず本番ランダム20問をやってみて');return}
+  mode=m;currentDay=null;let base=uniqueWords(DATA),s=getSettings();
+  if(m==='exam'){const count=s.examCount==='all'?base.length:Number(s.examCount);questions=orderQuestions(base).slice(0,count)}
+  if(m==='all')questions=orderQuestions(base);
+  if(!questions.length){alert('出す問題がありません。');return}
   startCommon();
 }
-function startCommon(){index=0;correct=0;wrong=[];answered=false;show('quiz');render();}
+function startCommon(){index=0;correct=0;wrong=[];answered=false;show('quiz');render()}
 function render(){
-  answered=false;
-  const q=questions[index];
-  $('rangeLabel').textContent = (mode==='day' || mode==='wrongDay') ? `Day${currentDay}` : 'Day13-30';
-  $('modeLabel').textContent = {exam:'本番20問',all:'全部',lastWrong:'前回間違えた',day:'Day練習',wrongDay:'Day別ミス'}[mode];
-  $('count').textContent=`${index+1} / ${questions.length}`;
-  $('score').textContent=`⭕ ${correct}　❌ ${wrong.length}`;
-  $('bar').style.width=`${index/questions.length*100}%`;
-  $('jp').textContent=`日本語：${q.jp}`;
-  $('phrase').innerHTML=q.phrase.replace('____','<span class="blank">________</span>');
-  $('answer').value=''; $('answer').disabled=false;
-  $('feedback').textContent=''; $('feedback').className='feedback';
-  $('correctBox').classList.add('hidden'); $('correctBox').innerHTML='';
-  $('checkBtn').classList.remove('hidden'); $('checkBtn').disabled=false;
-  $('nextBtn').classList.add('hidden'); $('nextBtn').textContent=index===questions.length-1?'結果を見る':'次へ';
+  answered=false;const q=questions[index];
+  $('rangeLabel').textContent=(mode==='day'||mode==='wrongDay')?'Day'+currentDay:'Day13-30';
+  const examLabel=getSettings().examCount==='all'?'ランダム・全部':'ランダム'+questions.length+'問';
+  $('modeLabel').textContent={exam:examLabel,all:'全部練習',recentWrong:'直近ミス',savedWrong:'保存済みミス',day:'Day練習',wrongDay:'Day別ミス'}[mode]||'練習';
+  $('count').textContent=(index+1)+' / '+questions.length;$('score').textContent='⭕ '+correct+'　❌ '+wrong.length;$('bar').style.width=(index/questions.length*100)+'%';
+  $('jp').textContent='日本語：'+q.jp;$('phrase').innerHTML=q.phrase.replace('____','<span class="blank">________</span>');
+  $('answer').value='';$('answer').disabled=false;$('feedback').textContent='';$('feedback').className='feedback';
+  $('correctBox').classList.add('hidden');$('correctBox').innerHTML='';$('removeWrongBtn').classList.add('hidden');
+  $('checkBtn').classList.remove('hidden');$('checkBtn').disabled=false;$('nextBtn').classList.add('hidden');$('nextBtn').textContent=index===questions.length-1?'結果を見る':'次へ';
   setTimeout(()=>$('answer').focus(),60);
 }
+function isWrongReview(){return ['savedWrong','wrongDay','recentWrong'].includes(mode)}
 function checkAnswer(){
-  if(answered)return; answered=true;
-  const q=questions[index], ans=normalize($('answer').value), ok=ans===normalize(q.en);
-  $('answer').disabled=true; $('checkBtn').classList.add('hidden'); $('nextBtn').classList.remove('hidden');
-  if(ok){correct++; $('feedback').className='feedback ok'; $('feedback').textContent='✅ 正解！';}
-  else{wrong.push(q); $('feedback').className='feedback bad'; $('feedback').textContent='❌ 不正解'; $('correctBox').classList.remove('hidden'); $('correctBox').innerHTML=`正解：<b>${q.en}</b><br>意味：${q.jp}<br>${q.phrase.replace('____', q.en)}`;}
-  $('score').textContent=`⭕ ${correct}　❌ ${wrong.length}`;
+  if(answered)return;answered=true;const q=questions[index],ok=normalize($('answer').value)===normalize(q.en);
+  $('answer').disabled=true;$('checkBtn').classList.add('hidden');$('nextBtn').classList.remove('hidden');
+  if(ok){
+    correct++;$('feedback').className='feedback ok';$('feedback').textContent='✅ 正解！';
+    if(isWrongReview()){
+      if(getSettings().autoRemoveWrong){removeWrongId(qid(q));$('feedback').textContent+=' ミスから自動削除しました。'}
+      else if(getSavedWrongIds().includes(qid(q)))$('removeWrongBtn').classList.remove('hidden');
+    }
+  }else{
+    wrong.push(q);$('feedback').className='feedback bad';$('feedback').textContent='❌ 不正解';$('correctBox').classList.remove('hidden');
+    $('correctBox').innerHTML='正解：<b>'+q.en+'</b><br>意味：'+q.jp+'<br>'+q.phrase.replace('____',q.en);
+  }
+  $('score').textContent='⭕ '+correct+'　❌ '+wrong.length;
 }
-function nextQuestion(){
-  if(!answered){checkAnswer();return}
-  if(index>=questions.length-1){finish();return}
-  index++; render();
-}
+function removeCurrentWrong(){const q=questions[index];removeWrongId(qid(q));$('removeWrongBtn').classList.add('hidden');$('feedback').textContent='✅ 正解！ 覚えたのでミスから削除しました。'}
+function nextQuestion(){if(!answered){checkAnswer();return}if(index>=questions.length-1){finish();return}index++;render()}
 function finish(){
-  const wrongUnique=uniqueWords(wrong);
-  save(STORE_LAST, wrongUnique.map(qid));
-  saveWrongBank(wrongUnique);
-  save(STORE_STATS,{total:questions.length,correct});
-  let best=load(STORE_BEST,null), newBest=false;
-  if(mode==='exam' && (!best || correct>best.correct || (correct===best.correct && questions.length>=best.total))){best={total:questions.length,correct};save(STORE_BEST,best);newBest=true;}
-  const pct=Math.round(correct/questions.length*100);
-  $('resultScore').textContent=`${questions.length}問中 ${correct}問正解（${pct}%）`;
-  $('recordMsg').textContent=newBest?'🏆 最高記録更新！':'';
-  if(wrongUnique.length){
-    $('wrongList').innerHTML='<h3>間違えた問題</h3>'+wrongUnique.map(q=>`<div class="wrongItem">❌ <b>${q.en}</b><br>意味：${q.jp}<br>Check2：${q.phrase.replace('____', q.en)}<br><span class="small">Day${q.day}</span></div>`).join('');
-  }else{$('wrongList').innerHTML='<p>全問正解。強すぎ。</p>'}
-  $('retryWrongBtn').disabled=wrongUnique.length===0;
-  show('result'); updateStats();
+  const wrongUnique=uniqueWords(wrong);save(STORE_LAST,wrongUnique.map(qid));saveWrongBank(wrongUnique);save(STORE_STATS,{total:questions.length,correct});
+  let best=load(STORE_BEST,null),newBest=false;
+  if(mode==='exam'){
+    const pct=correct/questions.length,bestPct=best&&best.total?best.correct/best.total:-1;
+    if(!best||pct>bestPct||(pct===bestPct&&correct>best.correct)){best={total:questions.length,correct};save(STORE_BEST,best);newBest=true}
+  }
+  $('resultScore').textContent=questions.length+'問中 '+correct+'問正解（'+Math.round(correct/questions.length*100)+'%）';$('recordMsg').textContent=newBest?'🏆 最高記録更新！':'';
+  $('wrongList').innerHTML=wrongUnique.length?'<h3>間違えた問題</h3>'+wrongUnique.map(q=>'<div class="wrongItem">❌ <b>'+q.en+'</b><br>意味：'+q.jp+'<br>Check2：'+q.phrase.replace('____',q.en)+'<br><span class="small">Day'+q.day+'</span></div>').join(''):'<p>全問正解。強すぎ。</p>';
+  $('retryWrongBtn').disabled=wrongUnique.length===0;show('result');updateHome();
 }
-function retryWrong(){
-  const ids=new Set(load(STORE_LAST,[]));
-  questions=shuffle(uniqueWords(DATA).filter(q=>ids.has(qid(q))));
-  if(!questions.length){goHome();return}
-  mode='lastWrong'; currentDay=null; startCommon();
-}
-
-function getLastWrongQuestions(){
-  const ids = new Set(getSavedWrongIds());
-  return uniqueWords(DATA).filter(q => ids.has(qid(q)));
-}
-
-function getLastWrongByDay(day){
-  return getLastWrongQuestions().filter(q => q.day === day);
-}
+function retryWrong(){questions=orderQuestions(getRecentWrongQuestions());if(!questions.length){goHome();return}mode='recentWrong';currentDay=null;startCommon()}
 
 function showWrongMenu(){
-  show('wrongMenu');
-
-  const wrongAll = getLastWrongQuestions();
-  const days = [...new Set(DATA.map(q => q.day))].sort((a,b)=>a-b);
-  const buttons = days.map(day => {
-    const count = wrongAll.filter(q => q.day === day).length;
-    if(count === 0) return '';
-    return `<button onclick="startWrongDay(${day})">Day${day}（${count}問）</button>`;
-  }).join('');
-
-  $('wrongDayButtons').innerHTML = buttons;
-  $('wrongEmptyMsg').textContent = wrongAll.length === 0
-    ? 'まだ間違えた問題がありません。まず本番ランダム20問かDay練習をやってみて。'
-    : '';
+  const saved=getSavedWrongQuestions(),recent=getRecentWrongQuestions();
+  $('wrongAllBtn').textContent='全体の保存済みミスを復習（'+saved.length+'問）';$('wrongAllBtn').disabled=!saved.length;
+  $('wrongDayButtons').innerHTML=allDays().map(day=>{const n=saved.filter(q=>q.day===day).length;return n?'<button onclick="startWrongDay('+day+')">Day'+day+'（'+n+'問）</button>':''}).join('');
+  $('wrongEmptyMsg').textContent=saved.length?'':'保存済みミスはまだありません。';
+  $('recentWrongBtn').textContent='直近のミスを復習（'+recent.length+'問）';$('recentWrongBtn').disabled=!recent.length;show('wrongMenu');
 }
+function startWrongAll(){questions=orderQuestions(getSavedWrongQuestions());if(!questions.length){alert('保存済みミスはありません。');return}mode='savedWrong';currentDay=null;startCommon()}
+function startWrongDay(day){questions=orderQuestions(getSavedWrongQuestions().filter(q=>q.day===day));if(!questions.length){alert('このDayの保存済みミスはありません。');return}mode='wrongDay';currentDay=day;startCommon()}
+function startRecentWrong(){questions=orderQuestions(getRecentWrongQuestions());if(!questions.length){alert('直近のミスはありません。');return}mode='recentWrong';currentDay=null;startCommon()}
 
-function startWrongAll(){
-  questions = shuffle(getLastWrongQuestions());
-  if(!questions.length){
-    alert('まだ間違えた問題がありません。');
+function showWordListMenu(){$('wordSearch').value='';$('wordDayFilter').value='all';renderWordList();show('wordListMenu')}
+function renderWordList(){
+  const day=$('wordDayFilter').value,term=normalize($('wordSearch').value),saved=new Set(getSavedWrongIds());
+  if(day==='all'&&!term){
+    $('wordListCount').textContent='';
+    $('wordList').innerHTML='<div class="notice">英語か日本語で検索するか、Dayを選んでください。</div>';
     return;
   }
-  mode = 'lastWrong';
-  currentDay = null;
-  startCommon();
-}
-
-function startWrongDay(day){
-  questions = shuffle(getLastWrongByDay(day));
-  if(!questions.length){
-    alert('このDayの間違えた問題はありません。');
+  const list=DATA.filter(q=>(day==='all'||String(q.day)===day)&&(!term||normalize(q.en).includes(term)||normalize(q.jp).includes(term)));
+  if(!list.length){
+    $('wordListCount').textContent='';
+    $('wordList').innerHTML='<div class="notice">該当する単語がありません</div>';
     return;
   }
-  mode = 'wrongDay';
-  currentDay = day;
-  startCommon();
+  $('wordListCount').textContent=list.length+'語';
+  $('wordList').innerHTML=list.map(q=>{const i=DATA.indexOf(q),added=saved.has(qid(q));return '<div class="wordItem"><b>'+q.en+'</b>　<span class="small">Day'+q.day+'</span><br>'+q.jp+'<br><span class="small">'+q.phrase.replace('____',q.en)+'</span><button '+(added?'disabled':'')+' onclick="addWordToWrong('+i+')">'+(added?'ミスに追加済み':'この単語をミスに追加')+'</button></div>'}).join('');
 }
+function addWordToWrong(i){saveWrongBank([DATA[i]]);renderWordList();updateHome()}
 
-
+function showRandomSettingsMenu(){
+  const s=getSettings();
+  $('examCount').value=s.examCount;$('questionOrder').value=s.order;
+  show('randomSettingsMenu');
+}
+function startRandomWithSettings(){
+  const current=getSettings();
+  save(STORE_SETTINGS,{examCount:$('examCount').value,order:$('questionOrder').value,autoRemoveWrong:current.autoRemoveWrong});
+  updateHome();startQuiz('exam');
+}
+function showRandomSettings(){showRandomSettingsMenu()}
+function showSettingsMenu(){showRandomSettingsMenu()}
+function saveSettingsFromForm(){startRandomWithSettings()}
+function showDataMenu(){$('importJson').value='';show('dataMenu')}
+function backupObject(){const data={format:'kikutan-backup-v1',exportedAt:new Date().toISOString(),data:{}};[STORE_LAST,STORE_WRONG,STORE_STATS,STORE_BEST,STORE_SETTINGS].forEach(k=>{const raw=localStorage.getItem(k);data.data[k]=raw===null?null:load(k,null)});return data}
+async function copyBackup(){const text=JSON.stringify(backupObject(),null,2);try{await navigator.clipboard.writeText(text);alert('バックアップJSONをコピーしました。')}catch(e){$('importJson').value=text;$('importJson').select();document.execCommand('copy');alert('バックアップJSONをコピーしました。')}}
+function downloadBackup(){const blob=new Blob([JSON.stringify(backupObject(),null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='kikutan-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function importBackup(){
+  try{
+    const obj=JSON.parse($('importJson').value),src=obj&&obj.data;if(!src||typeof src!=='object')throw new Error('形式が違います');
+    if(!confirm('現在の記録をバックアップ内容で置き換えます。よろしいですか？'))return;
+    [STORE_LAST,STORE_WRONG,STORE_STATS,STORE_BEST,STORE_SETTINGS].forEach(k=>{if(Object.prototype.hasOwnProperty.call(src,k)){if(src[k]===null)localStorage.removeItem(k);else save(k,src[k])}});
+    updateHome();alert('記録を復元しました。');goHome();
+  }catch(e){alert('JSONを読み込めませんでした。バックアップ内容を確認してください。')}
+}
 function showHistoryMenu(){
-  show('historyMenu');
-  const list = $('historyList');
-  const logs = window.CHANGELOG || [];
-  if(!logs.length){
-    list.innerHTML = '<p class="small">更新履歴がまだありません。</p>';
-    return;
-  }
-  list.innerHTML = logs.map(log => `
-    <div class="historyItem">
-      <div class="ver">${log.version}</div>
-      <div class="date">${log.date}</div>
-      <ul>${log.items.map(item => `<li>${item}</li>`).join('')}</ul>
-    </div>
-  `).join('');
+  const logs=window.CHANGELOG||[];$('historyList').innerHTML=logs.length?logs.map(log=>'<div class="historyItem"><div class="ver">'+log.version+'</div><div class="date">'+log.date+'</div><ul>'+log.items.map(item=>'<li>'+item+'</li>').join('')+'</ul></div>').join(''):'<p class="small">更新履歴がまだありません。</p>';show('historyMenu');
 }
-
-function goHome(){show('home');updateStats()}
-function resetData(){if(confirm('記録を消す？')){localStorage.removeItem(STORE_LAST);localStorage.removeItem(STORE_WRONG);localStorage.removeItem(STORE_STATS);localStorage.removeItem(STORE_BEST);updateStats();}}
-$('answer').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault(); answered?nextQuestion():checkAnswer();}});
+function goHome(){show('home');updateHome()}
+function resetData(){if(confirm('前回ミス、保存済みミス、成績、最高記録、設定をすべて削除します。よろしいですか？')){[STORE_LAST,STORE_WRONG,STORE_STATS,STORE_BEST,STORE_SETTINGS].forEach(k=>localStorage.removeItem(k));updateHome();alert('記録をリセットしました。');goHome()}}
+$('answer').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();answered?nextQuestion():checkAnswer()}});
 init();
-
-function updateInstallHint(){
-  const standalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
-  document.querySelectorAll('.installHint').forEach(el => { if(standalone) el.classList.add('hidden'); });
-}
-updateInstallHint();
-
+(function updateInstallHint(){const standalone=window.navigator.standalone||window.matchMedia('(display-mode: standalone)').matches;document.querySelectorAll('.installHint').forEach(el=>{if(standalone)el.classList.add('hidden')})})();
 </script>
 </body>
 </html>
