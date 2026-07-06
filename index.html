@@ -34,8 +34,8 @@ input{width:100%;padding:16px;border:2px solid var(--line);border-radius:14px;fo
 .historyItem .date{font-size:13px;color:var(--muted);font-weight:700}
 .historyItem ul{margin:8px 0 0 18px;padding:0}
 
-select,textarea{width:100%;padding:14px;border:2px solid var(--line);border-radius:14px;font:inherit;background:#fff;color:var(--ink);outline:none}
-select:focus,textarea:focus{border-color:var(--accent)} textarea{min-height:150px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px}
+select{width:100%;padding:14px;border:2px solid var(--line);border-radius:14px;font:inherit;background:#fff;color:var(--ink);outline:none}
+select:focus{border-color:var(--accent)}
 .setting{margin-top:14px}.setting label{display:block;font-weight:900;margin-bottom:7px}.checkrow{display:flex;align-items:center;gap:10px;font-weight:800}.checkrow input{width:22px;height:22px}
 .wordItem{background:#f8f4f0;border-radius:14px;padding:13px;margin-top:10px}.wordItem b{font-size:19px}.wordItem button{margin-top:9px;width:100%;padding:11px}
 .notice{background:#fff6d9;border-radius:12px;padding:10px;margin-top:10px;color:#765b00}.stack>*+*{margin-top:10px}
@@ -64,12 +64,11 @@ select:focus,textarea:focus{border-color:var(--accent)} textarea{min-height:150p
     <button class="primary" style="width:100%;margin-top:18px" onclick="startRandomWithSettings()">この設定で開始</button>
   </div>
 </section>
-<section id="dayMenu" class="hidden"><div class="row"><div class="title">Dayごとに練習</div><button class="ghost" onclick="goHome()">戻る</button></div><p class="sub">各Dayの保存済みミス数も確認できます。</p><div class="card"><div class="daygrid" id="dayButtons"></div></div></section>
+<section id="dayMenu" class="hidden"><div class="row"><div class="title">Dayごとに練習</div><button class="ghost" onclick="goHome()">戻る</button></div><p class="sub">練習したいDayを選んでください。</p><div class="card"><div class="daygrid" id="dayButtons"></div></div></section>
 <section id="wrongMenu" class="hidden"><div class="row"><div class="title">前回間違えた問題</div><button class="ghost" onclick="goHome()">戻る</button></div><p class="sub">保存済みミスと、直近のテストのミスを分けて復習できます。</p><div class="card"><h2>全体の保存済みミス</h2><button class="primary" style="width:100%" id="wrongAllBtn" onclick="startWrongAll()"></button></div><div class="card"><h2>Day別の保存済みミス</h2><div class="daygrid" id="wrongDayButtons"></div><p class="small" id="wrongEmptyMsg"></p></div><div class="card"><h2>直近のテストで間違えた問題</h2><button style="width:100%" id="recentWrongBtn" onclick="startRecentWrong()"></button></div></section>
 <section id="historyMenu" class="hidden"><div class="row"><div class="title">更新履歴</div><button class="ghost" onclick="goHome()">戻る</button></div><p class="sub">このページを更新したら履歴を掲載します</p><div class="card"><div id="historyList"></div></div></section>
 <section id="wordListMenu" class="hidden"><div class="row"><div class="title">単語一覧・検索</div><button class="ghost" onclick="goHome()">戻る</button></div><div class="card"><div class="setting"><label for="wordDayFilter">Day</label><select id="wordDayFilter" oninput="renderWordList()" onchange="renderWordList()"></select></div><div class="setting"><label for="wordSearch">英語・日本語で検索</label><input id="wordSearch" type="search" placeholder="例：commission / 委員会" oninput="renderWordList()"></div></div><div id="wordListCount" class="small"></div><div id="wordList"></div></section>
 <section id="settingsMenu" class="hidden"></section>
-<section id="dataMenu" class="hidden"><div class="row"><div class="title">データ管理</div><button class="ghost" onclick="goHome()">戻る</button></div><div class="card"><h2>バックアップ</h2><p class="small">現在の記録と設定をJSONで保存します。</p><div class="grid"><button onclick="copyBackup()">JSONをコピー</button><button onclick="downloadBackup()">JSONをダウンロード</button></div></div><div class="card"><h2>復元</h2><textarea id="importJson" placeholder="バックアップJSONをここに貼り付け"></textarea><button class="primary" style="width:100%;margin-top:10px" onclick="importBackup()">インポートして復元</button></div><div class="card"><h2>記録リセット</h2><p class="small">前回ミス、保存済みミス、成績、最高記録、設定を削除します。</p><button class="danger" style="width:100%" onclick="resetData()">すべての記録をリセット</button></div></section>
 <section id="quiz" class="hidden"><div class="row"><div><span class="pill" id="rangeLabel"></span><span class="pill" id="modeLabel"></span></div><button class="ghost" onclick="goHome()">戻る</button></div><div class="card"><div class="row"><div id="count"></div><div id="score"></div></div><div class="progress"><div class="bar" id="bar"></div></div><div class="jp" id="jp"></div><div class="phrase" id="phrase"></div><input id="answer" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="赤文字の英語を入力"><button class="primary" style="width:100%;margin-top:12px" onclick="checkAnswer()" id="checkBtn">答える</button><button class="primary hidden" style="width:100%;margin-top:12px" onclick="nextQuestion()" id="nextBtn">次へ</button><div id="feedback" class="feedback"></div><div id="correctBox" class="answer hidden"></div><button id="removeWrongBtn" class="ghost hidden" style="width:100%;margin-top:10px" onclick="removeCurrentWrong()">覚えたのでミスから削除</button></div></section>
 <section id="result" class="hidden"><div class="title">結果</div><div class="card"><h2 id="resultScore"></h2><div id="recordMsg" class="feedback ok"></div><div id="wrongList"></div></div><div class="grid"><button class="primary" onclick="goHome()">ホームへ</button><button onclick="retryWrong()" id="retryWrongBtn">今回間違えた問題だけもう一回</button></div></section>
 </div>
@@ -84,7 +83,7 @@ const STORE_WRONG='kikutan_wrong_bank_v1';
 const STORE_STATS='kikutan_stats_v1';
 const STORE_BEST='kikutan_best_v1';
 const STORE_SETTINGS='kikutan_settings_v1';
-const SCREENS=['home','randomSettingsMenu','dayMenu','wrongMenu','historyMenu','quiz','result','wordListMenu','settingsMenu','dataMenu'];
+const SCREENS=['home','randomSettingsMenu','dayMenu','wrongMenu','historyMenu','quiz','result','wordListMenu','settingsMenu'];
 const DEFAULT_SETTINGS={examCount:'20',order:'random',autoRemoveWrong:false};
 
 function load(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v===null?d:v}catch(e){return d}}
@@ -129,8 +128,7 @@ function updateStats(){
   $('stats').innerHTML=html;
 }
 function renderDayButtons(){
-  const saved=getSavedWrongQuestions();
-  $('dayButtons').innerHTML=allDays().map(d=>'<button onclick="startDay('+d+')">Day'+d+'（ミス'+saved.filter(q=>q.day===d).length+'）</button>').join('');
+  $('dayButtons').innerHTML=allDays().map(d=>'<button onclick="startDay('+d+')">Day'+d+'</button>').join('');
 }
 function showDayMenu(){renderDayButtons();show('dayMenu')}
 function startDay(day){currentDay=day;mode='day';questions=orderQuestions(uniqueWords(DATA.filter(q=>q.day===day)));startCommon()}
@@ -228,23 +226,10 @@ function startRandomWithSettings(){
 function showRandomSettings(){showRandomSettingsMenu()}
 function showSettingsMenu(){showRandomSettingsMenu()}
 function saveSettingsFromForm(){startRandomWithSettings()}
-function showDataMenu(){$('importJson').value='';show('dataMenu')}
-function backupObject(){const data={format:'kikutan-backup-v1',exportedAt:new Date().toISOString(),data:{}};[STORE_LAST,STORE_WRONG,STORE_STATS,STORE_BEST,STORE_SETTINGS].forEach(k=>{const raw=localStorage.getItem(k);data.data[k]=raw===null?null:load(k,null)});return data}
-async function copyBackup(){const text=JSON.stringify(backupObject(),null,2);try{await navigator.clipboard.writeText(text);alert('バックアップJSONをコピーしました。')}catch(e){$('importJson').value=text;$('importJson').select();document.execCommand('copy');alert('バックアップJSONをコピーしました。')}}
-function downloadBackup(){const blob=new Blob([JSON.stringify(backupObject(),null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='kikutan-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
-function importBackup(){
-  try{
-    const obj=JSON.parse($('importJson').value),src=obj&&obj.data;if(!src||typeof src!=='object')throw new Error('形式が違います');
-    if(!confirm('現在の記録をバックアップ内容で置き換えます。よろしいですか？'))return;
-    [STORE_LAST,STORE_WRONG,STORE_STATS,STORE_BEST,STORE_SETTINGS].forEach(k=>{if(Object.prototype.hasOwnProperty.call(src,k)){if(src[k]===null)localStorage.removeItem(k);else save(k,src[k])}});
-    updateHome();alert('記録を復元しました。');goHome();
-  }catch(e){alert('JSONを読み込めませんでした。バックアップ内容を確認してください。')}
-}
 function showHistoryMenu(){
   const logs=window.CHANGELOG||[];$('historyList').innerHTML=logs.length?logs.map(log=>'<div class="historyItem"><div class="ver">'+log.version+'</div><div class="date">'+log.date+'</div><ul>'+log.items.map(item=>'<li>'+item+'</li>').join('')+'</ul></div>').join(''):'<p class="small">更新履歴がまだありません。</p>';show('historyMenu');
 }
 function goHome(){show('home');updateHome()}
-function resetData(){if(confirm('前回ミス、保存済みミス、成績、最高記録、設定をすべて削除します。よろしいですか？')){[STORE_LAST,STORE_WRONG,STORE_STATS,STORE_BEST,STORE_SETTINGS].forEach(k=>localStorage.removeItem(k));updateHome();alert('記録をリセットしました。');goHome()}}
 $('answer').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();answered?nextQuestion():checkAnswer()}});
 init();
 (function updateInstallHint(){const standalone=window.navigator.standalone||window.matchMedia('(display-mode: standalone)').matches;document.querySelectorAll('.installHint').forEach(el=>{if(standalone)el.classList.add('hidden')})})();
